@@ -2,15 +2,10 @@
 
 ##  Technical Architecture & Data Engineering
 
-An AWS-based data engineering and machine learning portfolio project using synthetic e-commerce data. This project contains events, product catalogs, order records, user metadata, and profiles into queryable analytical datasets, then segments customer behavior using machine learning.
-```
-┌─────────────────────────┐      ┌─────────────────────────┐      ┌─────────────────────────┐
-│      BRONZE LAYER       │ ──►  │      SILVER LAYER       │ ──►  │    GOLD / ANALYTICS     │
-│  Raw CSV Files in S3    │      │  AWS Glue PySpark ETL   │      │ Amazon Athena & Power BI│
-│ (Users, Events, Orders) │      │ (Partitioned Parquet)   │      │ RFM ML Segmentation     │
-└─────────────────────────┘      └─────────────────────────┘      └─────────────────────────┘
+An AWS-based data engineering and machine learning portfolio project using synthetic e-commerce data. It transforms raw clickstream events, product catalogs, order records, user metadata, and profiles into queryable analytical datasets, extracts product association rules via Market Basket Analysis (FP-Growth & Lift mining), and segments customer behavior using machine learning.
 
-```
+<img width="762" height="390" alt="image" src="https://github.com/user-attachments/assets/c555dcbe-7991-4167-9fb6-91bd6ad7ffdd" />
+
 
 * **Bronze Storage:** Raw unstructured and semi-structured CSV datasets (`users`, `products`, `user_preferences`, `events`, `orders`, and `user_profiles`) ingested into Amazon S3.
 
@@ -35,6 +30,11 @@ Using **Amazon Athena**, serverless SQL queries were executed across the Silver 
 * **Category Conversion Funnel:** Tracked user drop-off across `product_views` $\rightarrow$ `cart_additions` $\rightarrow$ `purchases`, identifying categories like **Books** (18.39% conversion) and **Gaming** (18.30%) as top performers.
 * **Customer Lifetime Value (CLV) by Acquisition Channel:** Discovered that **Affiliate** marketing drives the highest customer value (£2,506.25 average CLV, £505.97 AOV), outperforming paid social channels.
 
+## Market Basket Analysis & Product Association Rules
+To understand cross-category purchasing behavior and optimize recommendation engines, association rule mining was executed on session interaction data:
+* **Frequent Itemset Mining:** Utilized **FP-Growth** via Python (mlxtend) on transaction sequences grouped by user sessions/profiles with a minimum support threshold (min_support=0.02).
+* **Association Rule Extraction:** Generated association rules conditioned on confidence thresholds (`min_threshold=0.50`) and sorted rules by **Lift** to isolate strong category co-occurrence patterns.
+* **Visualization:** Built seaborn bar visualizations (Top Category Association Rules by Lift) to highlight top conditional purchase affinities (If Bought ➔ Then Bought).
 ---
 
 ##  Machine Learning: RFM Customer Segmentation & PCA Clustering
